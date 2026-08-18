@@ -13,5 +13,19 @@ RUN apt-get update && \
 # Creating puppet user
 RUN useradd --create-home --shell /bin/bash puppet
 
+# Create SSH keys
+## Creating SSH directory.
+RUN mkdir -p /home/puppet/.ssh && \
+    chown -R puppet:puppet /home/puppet/.ssh && \
+    chmod 700 /home/puppet/.ssh
+
+## Transfer the script that generates the keys into the container.
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+## Run script
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
 CMD ["sleep", "infinity"]
 

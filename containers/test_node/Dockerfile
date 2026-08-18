@@ -12,5 +12,17 @@ RUN mkdir -p /run/sshd
 RUN useradd --create-home --shell /bin/bash puppet && \
 	usermod -aG sudo puppet
 
+RUN mkdir -p /home/puppet/.ssh && \
+    touch /home/puppet/.ssh/authorized_keys && \
+    chown -R puppet:puppet /home/puppet/.ssh && \
+    chmod 700 /home/puppet/.ssh && \
+    chmod 600 /home/puppet/.ssh/authorized_keys
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
 CMD ["/usr/sbin/sshd", "-D"]
 
