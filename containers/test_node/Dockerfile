@@ -9,8 +9,11 @@ RUN apt-get update && \
 
 RUN mkdir -p /run/sshd
 
+# Create puppet user and give passwordless sudo access
 RUN useradd --create-home --shell /bin/bash puppet && \
-	usermod -aG sudo puppet
+    usermod -aG sudo puppet && \
+    echo "puppet ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/puppet && \
+    chmod 440 /etc/sudoers.d/puppet
 
 RUN mkdir -p /home/puppet/.ssh && \
     touch /home/puppet/.ssh/authorized_keys && \
