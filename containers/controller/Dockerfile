@@ -7,7 +7,8 @@ RUN apt-get update && \
 		git \
 		curl \
 		sudo \
-		ca-certificates && \
+		ca-certificates \
+		rsync && \
 	rm -rf /var/lib/apt/lists/*
 
 # Creating puppet user
