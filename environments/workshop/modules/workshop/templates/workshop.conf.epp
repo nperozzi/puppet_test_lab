@@ -1,0 +1,6 @@
+# Workshop Configuration
+# This file is managed by Puppet - do not edit manually
+
+WORKSHOP_NAME=Workshop 
+WORKSHOP_ENV=workshop
+WORKSHOP_LOG_DIR=/opt/workshop/logs

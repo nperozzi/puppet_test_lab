@@ -53,6 +53,7 @@ class workshop::baseline {
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
+    content => epp('workshop/workshop.conf.epp'),
     require => File['/etc/workshop'],
   }
 
