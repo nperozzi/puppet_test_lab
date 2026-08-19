@@ -26,7 +26,7 @@ chown puppet:puppet /shared/authorized_key
 chmod 644 /shared/authorized_key
 
 # Initialize known_hosts automaticaly
-ssh-keyscan test_node_01 test_node_02 > /home/puppet/.ssh/known_hosts
+ssh-keyscan test_node_01 test_node_02 > /home/puppet/.ssh/known_hosts || true
 
 chown puppet:puppet /home/puppet/.ssh/known_hosts
 chmod 644 /home/puppet/.ssh/known_hosts
