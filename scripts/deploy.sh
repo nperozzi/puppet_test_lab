@@ -56,7 +56,19 @@ for NODE in "${NODES[@]}"; do
     
     # Step 1: Copy environment to node
     log_info "Step 1/2: Copying environment to $NODE..."
-    if scp -r "$LOCAL_ENV_PATH" "puppet@${NODE}:${REMOTE_ENV_PATH}" > /dev/null 2>&1; then
+    # Clean up old environment first (in case of partial copies)
+    if ! ssh "puppet@${NODE}" "rm -rf ${REMOTE_ENV_PATH}" > /dev/null 2>&1; then
+        log_warn "Could not remove old environment directory on $NODE (may not exist)"
+    fi
+    
+    # Create parent directory
+    if ! ssh "puppet@${NODE}" "mkdir -p ${REMOTE_ENV_PATH}" > /dev/null 2>&1; then
+        log_error "Failed to create environment directory on $NODE"
+        exit 1
+    fi
+    
+    # Copy with trailing slashes to copy contents into the directory
+    if scp -r "${LOCAL_ENV_PATH}/" "puppet@${NODE}:${REMOTE_ENV_PATH}/" > /dev/null 2>&1; then
         log_info "  ✓ Environment copied successfully"
     else
         log_error "Failed to copy environment to $NODE"
