@@ -1,0 +1,10 @@
+# External Puppet modules (managed via Puppetfile)
+environments/*/modules/apt/
+environments/*/modules/stdlib/
+environments/*/modules/**/.git/
+
+# Puppet and system files
+*.swp
+*.swo
+*~
+.DS_Store
