@@ -1,6 +1,17 @@
 # Puppet Site Manifest
 # Entry point for the workshop environment
-# Declares which classes/roles apply to nodes
+# Uses node blocks to assign roles to specific nodes
 
-# Apply baseline configuration to all nodes
-include workshop::baseline
+# Node-specific role assignment
+node 'node_01' {
+  include workshop::role::monitoring
+}
+
+node 'node_02' {
+  include workshop::role::utility
+}
+
+# Fallback for any other nodes
+node default {
+  include workshop::profile::baseline
+}

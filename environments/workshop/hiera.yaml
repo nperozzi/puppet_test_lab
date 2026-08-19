@@ -1,9 +1,11 @@
 version: 5
 
 defaults:
-  datadir: data
-  data_hash: yaml
+  datadir: /etc/puppetlabs/code/environments/workshop/data
+  data_hash: yaml_data
 
 hierarchy:
+  - name: "Per-node data"
+    path: "nodes/%{::hostname}.yaml"
   - name: "Common"
     path: "common.yaml"
