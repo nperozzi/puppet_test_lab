@@ -25,8 +25,25 @@ cp "$KEY_FILE.pub" /shared/authorized_key
 chown puppet:puppet /shared/authorized_key
 chmod 644 /shared/authorized_key
 
-# Initialize known_hosts automaticaly
-ssh-keyscan test_node_01 test_node_02 > /home/puppet/.ssh/known_hosts || true
+# Initialize known_hosts automatically
+# Scan each node with retries to handle timing issues during startup
+> /home/puppet/.ssh/known_hosts
+
+for node in node_01 node_02; do
+    echo "Scanning host keys for $node..."
+    for attempt in {1..10}; do
+        if ssh-keyscan -T 2 "$node" >> /home/puppet/.ssh/known_hosts 2>/dev/null; then
+            echo "  ✓ $node host key obtained"
+            break
+        else
+            if [ $attempt -eq 10 ]; then
+                echo "  ✗ Failed to get host key for $node after 10 attempts"
+            else
+                sleep 1
+            fi
+        fi
+    done
+done
 
 chown puppet:puppet /home/puppet/.ssh/known_hosts
 chmod 644 /home/puppet/.ssh/known_hosts
