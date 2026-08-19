@@ -12,7 +12,7 @@ services:
   test_node_01:
     build:
       context: ./containers/test_node
-    container_name: test_node_01
+    container_name: node_01 
     networks:
       - puppet_lab_network
     volumes:
@@ -21,7 +21,7 @@ services:
   test_node_02:
     build:
       context: ./containers/test_node
-    container_name: test_node_02
+    container_name: node_02
     networks:
       - puppet_lab_network
     volumes:
