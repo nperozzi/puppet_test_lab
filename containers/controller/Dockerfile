@@ -20,7 +20,7 @@ RUN mkdir -p /home/puppet/.ssh && \
     chmod 700 /home/puppet/.ssh
 
 ## Transfer the script that generates the keys into the container.
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY containers/controller/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 

@@ -12,7 +12,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Installing the Puppet 8 repository.
-COPY puppet8-release-noble.deb /tmp/puppet8-release-noble.deb
+COPY containers/test_node/puppet8-release-noble.deb /tmp/puppet8-release-noble.deb
 
 RUN dpkg -i /tmp/puppet8-release-noble.deb && \
     rm /tmp/puppet8-release-noble.deb
@@ -38,7 +38,7 @@ RUN mkdir -p /home/puppet/.ssh && \
     chmod 700 /home/puppet/.ssh && \
     chmod 600 /home/puppet/.ssh/authorized_keys
 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY containers/test_node/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 

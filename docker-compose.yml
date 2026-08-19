@@ -1,7 +1,8 @@
 services:
   puppet_controller:
     build:
-      context: ./containers/controller
+      context: .
+      dockerfile: ./containers/controller/Dockerfile
     container_name: puppet_controller
     networks:
       - puppet_lab_network
@@ -12,7 +13,8 @@ services:
   
   test_node_01:
     build:
-      context: ./containers/test_node
+      context: .
+      dockerfile: ./containers/test_node/Dockerfile
     container_name: node_01 
     networks:
       - puppet_lab_network
@@ -21,7 +23,8 @@ services:
   
   test_node_02:
     build:
-      context: ./containers/test_node
+      context: .
+      dockerfile: ./containers/test_node/Dockerfile
     container_name: node_02
     networks:
       - puppet_lab_network
