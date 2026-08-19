@@ -24,6 +24,11 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+## Transfer the deployment script
+COPY scripts/deploy.sh /usr/local/bin/deploy.sh
+
+RUN chmod +x /usr/local/bin/deploy.sh
+
 ## Run script
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
