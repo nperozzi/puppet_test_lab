@@ -8,7 +8,8 @@ RUN apt-get update && \
         openssh-server \
         sudo \
         ca-certificates \
-        wget && \
+        wget \
+        rsync && \
     rm -rf /var/lib/apt/lists/*
 
 # Installing the Puppet 8 repository.

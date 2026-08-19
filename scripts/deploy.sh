@@ -62,13 +62,14 @@ for NODE in "${NODES[@]}"; do
     fi
     
     # Create parent directory
-    if ! ssh "puppet@${NODE}" "mkdir -p ${REMOTE_ENV_PATH}" > /dev/null 2>&1; then
-        log_error "Failed to create environment directory on $NODE"
+    PARENT_ENV_PATH="/etc/puppetlabs/code/environments"
+    if ! ssh "puppet@${NODE}" "mkdir -p ${PARENT_ENV_PATH}" > /dev/null 2>&1; then
+        log_error "Failed to create environment parent directory on $NODE"
         exit 1
     fi
     
-    # Copy with trailing slashes to copy contents into the directory
-    if scp -r "${LOCAL_ENV_PATH}/" "puppet@${NODE}:${REMOTE_ENV_PATH}/" > /dev/null 2>&1; then
+    # Use rsync to copy environment (trailing slash copies contents, not directory)
+    if rsync -az "${LOCAL_ENV_PATH}/" "puppet@${NODE}:${REMOTE_ENV_PATH}/" > /dev/null 2>&1; then
         log_info "  ✓ Environment copied successfully"
     else
         log_error "Failed to copy environment to $NODE"
@@ -77,7 +78,7 @@ for NODE in "${NODES[@]}"; do
     
     # Step 2: Apply Puppet configuration
     log_info "Step 2/2: Applying Puppet configuration on $NODE..."
-    if ssh "puppet@${NODE}" "sudo /opt/puppetlabs/bin/puppet apply --environment=${ENVIRONMENT} ${REMOTE_ENV_PATH}/manifests/site.pp" 2>&1; then
+    if ssh "puppet@${NODE}" "sudo /opt/puppetlabs/bin/puppet apply --environment=${ENVIRONMENT} --hiera_config=${REMOTE_ENV_PATH}/hiera.yaml ${REMOTE_ENV_PATH}/manifests/site.pp" 2>&1; then
         log_info "  ✓ Puppet apply completed successfully"
     else
         log_error "Puppet apply failed on $NODE"

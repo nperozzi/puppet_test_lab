@@ -15,7 +15,8 @@ services:
     build:
       context: .
       dockerfile: ./containers/test_node/Dockerfile
-    container_name: node_01 
+    container_name: node_01
+    hostname: node_01
     networks:
       - puppet_lab_network
     volumes:
@@ -26,6 +27,7 @@ services:
       context: .
       dockerfile: ./containers/test_node/Dockerfile
     container_name: node_02
+    hostname: node_02
     networks:
       - puppet_lab_network
     volumes:
