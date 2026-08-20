@@ -1,86 +1,101 @@
 # Puppet Test Lab
 
-## Background
-A small workshop operates several Linux-based devices. These devices perform different functions:
-* Monotoring nodes collecting data from equipment.
-* Service nodes providing support services.
-* All machines need a consistent baseline configuration.
+A Docker-based Puppet learning environment that demonstrates infrastructure-as-code practices using the Roles and Profiles pattern with Hiera configuration management.
 
-Initially, the machines were configured manually and this has caused problems:
-* Different machines have slightly different configs.
-* Required packages are, sometimes missing.
-* Config files diverge over time.
-* Configuring new machines takes a long time.
-* Nobody has a reliable description of the desired system state.
+## Overview
 
-The organization wants to use Puppet to describe the desired configuration and automate the configuration and maintainace. 
+This lab simulates a workshop environment with two managed nodes:
+- **node_01** (Monitoring role) - Collects system data
+- **node_02** (Utility role) - Provides supporting services
 
-## Setup description:
-The workshop is simulated using Docker. We have two managed machines:
-| Node | Role | Purpose |
-| --- | --- | --- |
-| node_01 | Monotoring | Collect system data |
-| node_02 | Utility | Provides supporting tool/services |
+All nodes receive a common baseline configuration via Puppet, demonstrating how to manage infrastructure consistently at scale.
 
-## Docker Architecture
+## Architecture
 
-This lab consists of three interconnected containers running on a shared bridge network:
+**Containers:**
+- `puppet_controller` - Puppet server with Hiera data and SSH access
+- `test_node_01` - Managed node with Puppet agent (Monitoring role)
+- `test_node_02` - Managed node with Puppet agent (Utility role)
 
-- **puppet_controller** — Puppet server managing the test nodes
-- **test_node_01** — Test managed node running Puppet agent
-- **test_node_02** — Test managed node running Puppet agent
+**Configuration Pattern:** Roles/Profiles with Hiera data management
+- Roles define "what is this machine?"
+- Profiles define "how do we configure it?"
+- Hiera provides environment-specific configuration values
 
-All containers share SSH keys via the `ssh_keys` volume for secure communication.
- 
-## Puppet Architecture:
-                    Git repository
-                         │
-                         ▼
-                puppet_controller
-                ┌─────────────────┐
-                │ Puppet code     │
-                │ Hiera data      │
-                │ Git             │
-                │ SSH client      │
-                └────────┬────────┘
-                         │
-                    SSH / puppet
-                  ┌──────┴──────┐
-                  ▼             ▼
-          test_node_01    test_node_02
-          ┌────────────┐  ┌────────────┐
-          │ Puppet     │  │ Puppet     │
-          │ Agent      │  │ Agent      │
-          │ SSH server │  │ SSH server │
-          └────────────┘  └────────────┘
+## Quick Start
 
-## Puppet structure
-                    workshop environment
-                            │
-                       workshop module
-                            │
-                 ┌──────────┴──────────┐
-                 │                     │
-          role::monitoring       role::utility
-                 │                     │
-          profile::monitoring    profile::utility
-                 │                     │
-              node_01               node_02
+### Build and Start
 
-# Rles and Profiles
-The role answers "what is this machine?"
-
-The profile answers "how do we configure it?"
-
-* Hiera provides environment-specific data.
-
-
-* Controller: stores Puppet code, Hiera data, Git, and connects to nodes.
-* Nodes: contain the Puppet agent and execute Puppet.
-* The controller does not need the Puppet executable.
-
-# Docker commnads:
-## Rebuild:
+```bash
 docker compose down && \
 docker compose build --no-cache && \
 docker compose up -d
+```
+
+### Verify Setup
+
+```bash
+# Check that all containers are running
+docker compose ps
+
+# Verify the controller can connect to nodes
+docker exec puppet_controller ssh test_node_01 hostname
+docker exec puppet_controller ssh test_node_02 hostname
+```
+
+## Testing
+
+### Test 1: Verify Baseline Configuration
+
+SSH into a managed node and check that baseline packages and configuration are applied:
+
+```bash
+# Check that common packages are installed
+docker exec test_node_01 which curl git htop
+
+# Check workshop user exists
+docker exec test_node_01 id workshop
+
+# Check workshop directories are created
+docker exec test_node_01 ls -la /opt/workshop/
+docker exec test_node_01 ls -la /etc/workshop/
+
+# Check workshop configuration file
+docker exec test_node_01 cat /etc/workshop/workshop.conf
+```
+
+### Test 2: Verify Hiera Configuration is Applied
+
+Verify that values from Hiera are correctly rendered in the configuration file:
+
+```bash
+# Check workshop configuration contains Hiera values
+docker exec test_node_01 grep "WORKSHOP_NAME" /etc/workshop/workshop.conf
+docker exec test_node_01 grep "WORKSHOP_LOG_DIR" /etc/workshop/workshop.conf
+```
+
+### Test 3: Apply Puppet Changes
+
+Make a change to Hiera data and re-apply Puppet to verify dynamic updates:
+
+```bash
+# Edit the common Hiera data
+# environments/workshop/data/common.yaml
+
+# Re-run Puppet on a node
+docker exec puppet_controller puppet agent -t -h test_node_01
+
+# Verify the change
+docker exec test_node_01 cat /etc/workshop/workshop.conf
+```
+
+### Test 4: Verify Node-Specific Roles
+
+Check that the roles are properly applied:
+
+```bash
+# Check marker files created by monitoring profile
+docker exec test_node_01 test -f /opt/workshop/role_marker.txt && echo "node_01 has monitoring profile"
+
+# The utility profile should also exist but may not create visible markers yet
+```
