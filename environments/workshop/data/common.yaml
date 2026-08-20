@@ -1,6 +1,8 @@
 ---
 # Common data for all nodes
 # Note: workshop_role is defined per-node in data/nodes/
-test_key: "common_value"
 
+workshop::workshop_name: "Workshop Lab"
+workshop::workshop_env: "workshop"
+workshop::log_dir: "/opt/workshop/logs"
 

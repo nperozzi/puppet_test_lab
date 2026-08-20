@@ -47,13 +47,21 @@ class workshop::profile::baseline {
     mode   => '0755',
   }
 
-  # Workshop configuration file
+  # Workshop configuration file with values from Hiera
+  $workshop_name = lookup('workshop::workshop_name')
+  $workshop_env = lookup('workshop::workshop_env')
+  $log_dir = lookup('workshop::log_dir')
+
   file { '/etc/workshop/workshop.conf':
     ensure  => file,
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    content => epp('workshop/workshop.conf.epp'),
+    content => epp('workshop/workshop.conf.epp', {
+      'workshop_name' => $workshop_name,
+      'workshop_env'  => $workshop_env,
+      'log_dir'       => $log_dir,
+    }),
     require => File['/etc/workshop'],
   }
 
